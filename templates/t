@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% include 'header.html' %}
+
+{% block title %} Home {% endblock %}
+
+{% block body %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="jumbotron p-3">
+                <h2>Manage <b>Employees</b> <button type="button" class="btn btn-success float-right"
+                        data-toggle="modal" data-target="#addEmployeeModal">Add New Employee</button></h2>
+                <table class="table table-hover table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Action</th>
+                    </tr>
+                    {% for employee in employees %}
+                    <tr>
+                        <td>{{ employee.id }}</td>
+                        <td>{{ employee.name }}</td>
+                        <td>{{ employee.email }}</td>
+                        <td>{{ employee.phone }}</td>
+                        <td>
+                            <button type="button" class="btn btn-warning btn-xs"
+                                onclick="populateEditModal('{{ employee.id }}', '{{ employee.name }}', '{{ employee.email }}', '{{ employee.phone }}')"
+                                data-toggle="modal" data-target="#editEmployeeModal">Edit</button>
+                            <form action="{{ url_for('delete_employee', id=employee.id) }}" method="POST"
+                                style="display: inline;">
+                                <button type="submit" class="btn btn-danger btn-xs"
+                                    onclick="return confirm('Are you sure you want to delete?')">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Employee Modal -->
+<div class="modal fade" id="addEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="addEmployeeModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addEmployeeModalLabel">Add New Employee</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Form for adding a new employee -->
+                <form action="{{ url_for('add_employee') }}" method="POST">
+                    <div class="form-group">
+                        <label for="employeeName">Name</label>
+                        <input type="text" class="form-control" name="name" required="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="employeeEmail">Email</label>
+                        <input type="email" class="form-control" name="email" required="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="employeePhone">Phone</label>
+                        <input type="tel" class="form-control" name="phone" required="1">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Employee</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Edit Employee Modal -->
+<div class="modal fade" id="editEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="editEmployeeModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editEmployeeModalLabel">Edit Employee</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Form for editing an existing employee -->
+                <form id="editEmployeeForm" method="POST"
+                    action="{% if employee %}{{ url_for('edit_employee', id=employee.id) }}{% endif %}">
+                    <div class="form-group">
+                        <label for="editEmployeeName">Name</label>
+                        <input type="text" class="form-control" id="editEmployeeName" name="name"
+                            value="{{ employee.name if employee else '' }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEmployeeEmail">Email</label>
+                        <input type="email" class="form-control" id="editEmployeeEmail" name="email"
+                            value="{{ employee.email if employee else '' }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEmployeePhone">Phone</label>
+                        <input type="tel" class="form-control" id="editEmployeePhone" name="phone"
+                            value="{{ employee.phone if employee else '' }}" required>
+                    </div>
+                    <!-- Additional form inputs for other employee details if needed -->
+                    <input type="hidden" id="editEmployeeId" name="id">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="submitEditForm()">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Function to populate edit modal with employee details
+    function populateEditModal(id, name, email, phone) {
+        document.getElementById('editEmployeeId').value = id;
+        document.getElementById('editEmployeeName').value = name;
+        document.getElementById('editEmployeeEmail').value = email;
+        document.getElementById('editEmployeePhone').value = phone;
+    }
+
+    // Function to submit edit form
+    function submitEditForm() {
+        document.getElementById('editEmployeeForm').submit();
+    }
+</script>
+
+{% endblock %}
+
+
+<table class="table table-hover table-dark">
+    <tr>
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for employee in employees %}
+            <tr>
+                <td>{{ employee.id }}</td>
+                <td>{{ employee.name }}</td>
+                <td>{{ employee.email }}</td>
+                <td>{{ employee.phone }}</td>
+                <td>
+                    <a href="{{ url_for('edit_employee', id=employee.id) }}" class="btn btn-warning">Edit</a>
+                    <form action="{{ url_for('delete_employee', id=employee.id) }}" method="POST"
+                        style="display: inline;">
+                        <button type="submit" class="btn btn-danger"
+                            onclick="return confirm('Are you sure you want to delete?')">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+</table>

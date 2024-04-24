@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% include 'header.html' %}
+
+{% block title %} Home {% endblock %}
+
+{% block body %}
+
+<!-- Flash messages for successful updates and additions -->
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="alert alert-success" role="alert">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="jumbotron p-3">
+                <h2>Manage <b>Employees</b></h2>
+                <!-- Button to trigger modal for adding a new employee -->
+                <button type="button" class="btn btn-success float-right" data-toggle="modal" data-target="#addEmployeeModal">Add New Employee</button>
+                <table class="table table-hover table-dark">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for employee in employees %}
+                        <tr>
+                            <td>{{ employee.id }}</td>
+                            <td>{{ employee.name }}</td>
+                            <td>{{ employee.email }}</td>
+                            <td>{{ employee.phone }}</td>
+                            <td>
+                                <!-- Button to trigger modal for editing employee -->
+                                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#editEmployeeModal{{ employee.id }}">Edit</button>
+                                <form action="{{ url_for('delete_employee', id=employee.id) }}" method="POST"
+                                    style="display: inline;">
+                                    <button type="submit" class="btn btn-danger"
+                                        onclick="return confirm('Are you sure you want to delete?')">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <!-- Edit Employee Modal for each employee -->
+                        <div class="modal" id="editEmployeeModal{{ employee.id }}" tabindex="-1" role="dialog" aria-labelledby="editEmployeeModalLabel{{ employee.id }}" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editEmployeeModalLabel{{ employee.id }}">Edit Employee - {{ employee.name }}</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- Form for editing the employee -->
+                                        <form action="{{ url_for('edit_employee', id=employee.id) }}" method="POST">
+                                            <div class="form-group">
+                                                <label for="employeeName">Name</label>
+                                                <input type="text" class="form-control" name="name" value="{{ employee.name }}" required="1">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="employeeEmail">Email</label>
+                                                <input type="email" class="form-control" name="email" value="{{ employee.email }}" required="1">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="employeePhone">Phone</label>
+                                                <input type="tel" class="form-control" name="phone" value="{{ employee.phone }}" required="1">
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Update</button>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Employee Modal -->
+<div class="modal" id="addEmployeeModal" tabindex="-1" role="dialog" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addEmployeeModalLabel">Add New Employee</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Form for adding a new employee -->
+                <form action="{{ url_for('add_employee') }}" method="POST">
+                    <div class="form-group">
+                        <label for="employeeName">Name</label>
+                        <input type="text" class="form-control" name="name" required="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="employeeEmail">Email</label>
+                        <input type="email" class="form-control" name="email" required="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="employeePhone">Phone</label>
+                        <input type="tel" class="form-control" name="phone" required="1">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Employee</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
